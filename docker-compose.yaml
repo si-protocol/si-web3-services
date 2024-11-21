@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  si-web3-services:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - '4000:4000'
+    env_file:
+      - .env
