@@ -1,31 +1,44 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TransactionType, TransactionStatus } from '@src/models';
-import { ApiPaginationQuery, chainId2PayChannel, PayChannel } from '@src/common';
-import { Transform, Type as Transformer } from 'class-transformer';
-import { IsOptional, IsString, IsNumber, IsEnum, IsObject, IsInt, Min, IsDateString } from 'class-validator';
+import { chainId2PayChannel, PayChannel } from '@src/common';
+import { Transform, Type } from 'class-transformer';
+import { IsOptional, IsString, IsNumber, IsEnum} from 'class-validator';
 
-export class SignTransactionDto {
+export class SignPayTransactionDto {
   @ApiProperty({ required: true, nullable: false, example: '', description: 'payer waller address' })
   @IsString()
   @IsOptional()
   account: string;
 
-  @ApiProperty({ required: false, nullable: false, example: '', description: 'transaction type' })
-  @IsOptional()
-  @IsEnum(TransactionType)
-  type: TransactionType;
-
-  @ApiProperty({ required: false, nullable: false, example: '', description: 'transaction channel' })
-  @IsOptional()
+  @ApiProperty({ required: true, nullable: false, example: '', description: 'transaction channel' })
   @Transform(({ value }) => {
     return chainId2PayChannel(value);
   })
+  @IsEnum(PayChannel)
   channel: PayChannel;
 
-  @ApiProperty({ required: false, nullable: false, example: '', description: 'order detail' })
-  @IsOptional()
-  @IsObject()
-  orderDetail: any;
+  @ApiProperty({ required: true, nullable: false, example: 'USDC', description: 'token symbol' })
+  @IsString()
+  tokenSymbol: string;
+
+  @ApiProperty({ required: true, nullable: false, example: '', description: 'token address' })
+  @IsString()
+  tokenAddress: string;
+
+  @ApiProperty({ required: true, nullable: false, example: '', description: 'token decimals' })
+  @IsNumber()
+  tokenDecimals: number;
+
+  @ApiProperty({ required: false, nullable: false, example: '1.8', description: 'amount, no decimals' })
+  @IsString()
+  @Type(() => String)
+  @Transform(({ value }) => {
+    return String(value);
+  })
+  amount: string;
+}
+
+export class SignWithdrawTransactionDto extends SignPayTransactionDto {
+
 }
 
 
@@ -34,17 +47,7 @@ export class SignTransactionRes {
   @IsString()
   transaction: string;
 
-  @ApiProperty({ required: false, nullable: false, example: '', description: 'order id' })
+  @ApiProperty({ required: true, nullable: false, example: '', description: 'transaction hash' })
   @IsString()
-  @IsOptional()
-  orderId: string;
-
-  @ApiProperty({ required: true, nullable: false, example: '', description: 'paying message detail' })
-  @IsString()
-  message: string;
-
-  @ApiProperty({ required: false, nullable: false, example: '', description: 'transaction status' })
-  @IsNumber()
-  @IsOptional()
-  status: number;
+  txhash: string;
 }

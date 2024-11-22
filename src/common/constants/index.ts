@@ -54,6 +54,7 @@ export const TOLERANCE = 0.0000001;
 export const CurrencyList = ['SOL:USDC', 'SOL:SOL', 'ETH:USDC', 'BSC:USDC', 'ETH:USDT', 'BSC:USDT'];
 
 export function chainId2PayChannel(chainId: number | string): PayChannel {
+  console.log('chainId2PayChannel: ', chainId);
   if (['56', '97'].includes(String(chainId))) {
     return PayChannel.BSC;
   } else if (['1', '11155111'].includes(String(chainId))) {

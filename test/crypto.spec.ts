@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { createMock } from '@golevelup/ts-jest';
-import { srvPublicKey, srvPrivateKey } from '../src/common';
 import { sign, verify, md5 } from '../src/utils/crypto';
 import { generateSN } from '../src/utils/hash';
 import dotenv from 'dotenv';
@@ -36,29 +35,6 @@ describe('Crypto', () => {
     // clean
   });
 
-  it('rsa', async () => {
-    res = service.get('SRV_PUBLIC_KEY_FILE');
-    console.log('SRV_PUBLIC_KEY_FILE:', res);
-    res = service.get('SRV_PRIVATE_KEY_FILE');
-    console.log('SRV_PRIVATE_KEY_FILE:', res);
-    const pubkey = srvPublicKey(service);
-    console.log(pubkey.toString());
-    const prikey = srvPrivateKey(service);
-    console.log(prikey.toString());
-
-    const body = {
-      name: 'name',
-      age: 18,
-    };
-    const signature = sign(prikey.toString(), JSON.stringify(body));
-    console.log('signature:', signature);
-    res = verify(pubkey.toString(), JSON.stringify(body), signature);
-    console.log('res:', res);
-    expect(res).toBe(true);
-
-    // "X-ACCESS-SIGN": signature,
-    // "X-ACCESS-TIMESTAMP": timestamp,
-  });
   it('md5', async () => {
     res = 'admin';
     res = md5(res);
