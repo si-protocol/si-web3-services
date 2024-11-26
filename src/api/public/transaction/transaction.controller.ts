@@ -2,7 +2,6 @@ import { Controller, UseGuards, Param, Req, Get, Post, Body, HttpCode, Query, Ba
 import { ApiTags, ApiBody, ApiOperation, ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { SignPayTransactionDto, SignTransactionRes} from './dto';
 import { Transaction, PublicKey, Keypair } from '@solana/web3.js';
-import { USDC_PUBKEY, USDC_DEV_PUBKEY } from '@src/config/pubkeys.config';
 import { getAssociatedTokenAddress, NATIVE_MINT } from '@solana/spl-token';
 import { PayChannel, PayCurrency } from '@src/common';
 import * as bs58 from 'bs58';

@@ -19,7 +19,7 @@ export const CHAIN_TOKENS: any = {
     USDC: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
   },
   'devnet': {
-    USDT: '',
-    USDC: '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
+    USDT: 'DLog4n39QYwZ8DZRFzZV59WFRfDc6nbGsBiBZUdHSMXX',
+    USDC: 'ARUn7NWoHLcEnrw3jXZX78RSpW7rQiZ4Tsq99wAT8tgC',
   },
 };

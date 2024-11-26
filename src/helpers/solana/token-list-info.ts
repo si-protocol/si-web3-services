@@ -1,6 +1,5 @@
 import { getMint } from '@solana/spl-token';
 import * as web3 from '@solana/web3.js';
-import { USDC_PUBKEY, WSOL_PUBKEY } from '../../config/pubkeys.config';
 
 export class TokenInformation {
   readonly alias: string;
@@ -33,43 +32,4 @@ export class TokenInformation {
       throw new Error('Token does not exist.');
     }
   }
-}
-
-export class TokenRegistry {
-  static isTokenAlias = (name: string) => {
-    const token = this.allTokens.find((token) => {
-      return token.alias == name;
-    });
-
-    return token != undefined;
-  };
-
-  static getTokenFromAlias = (input: string): TokenInformation | undefined => {
-    return TokenRegistry.allTokens.find((token) => {
-      return token.alias == input;
-    });
-  };
-
-  static getTokenFromPubkey = (input: web3.PublicKey): TokenInformation | undefined => {
-    return TokenRegistry.allTokens.find((token) => {
-      return token.pubkey == input;
-    });
-  };
-
-  static getTokenFromPubkeyString = (input: string): TokenInformation | undefined => {
-    return TokenRegistry.allTokens.find((token) => {
-      return token.pubkey.toBase58() == input;
-    });
-  };
-
-  static queryTokenInformation = async (input: string, connection: web3.Connection | undefined): Promise<TokenInformation | undefined> => {
-    if (connection != undefined) {
-      return await TokenInformation.queryTokenInformationFromPubkey(new web3.PublicKey(input), connection);
-    }
-  };
-
-  static allTokens: TokenInformation[] = [
-    new TokenInformation('usdc', USDC_PUBKEY, 6), //
-    new TokenInformation('sol', WSOL_PUBKEY, 9),
-  ];
 }

@@ -2,7 +2,9 @@ import { SolTransaction, TokenInformation } from '../../src/helpers/solana';
 import * as bs58 from 'bs58';
 import * as web3 from '@solana/web3.js';
 import { getAssociatedTokenAddress } from '@solana/spl-token';
-import { USDC_DEV_PUBKEY, USDC_PUBKEY } from '../../src/config';
+import { SolConstants } from '../../src/helpers/solana';
+
+const USDC_DEV_PUBKEY = new web3.PublicKey(SolConstants.CHAIN_TOKENS.devnet.USDC);
 
 describe('solana-service', () => {
   const solTransaction: SolTransaction = new SolTransaction();
