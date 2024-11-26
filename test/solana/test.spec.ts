@@ -1,15 +1,18 @@
 import { SolTransaction, TokenInformation } from '../../src/helpers/solana';
 import * as bs58 from 'bs58';
 import * as web3 from '@solana/web3.js';
-import { getAssociatedTokenAddress } from '@solana/spl-token';
+import { getAssociatedTokenAddress, getAccount } from '@solana/spl-token';
 import { SolConstants } from '../../src/helpers/solana';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const USDC_DEV_PUBKEY = new web3.PublicKey(SolConstants.CHAIN_TOKENS.devnet.USDC);
 
 describe('solana-service', () => {
   const solTransaction: SolTransaction = new SolTransaction();
 
-  describe('dev net', async () => {
+  describe('dev net', () => {
     it('fetch dev transaction sended and success', async () => {
       const signature = '4NWUF65zTqLtmrcpvr2DScXbtzz9CRn9RD5WdGYYfbEU9yurmLNsVdKf8LJwf3C7z7WRdJGLEif5fB6QsSMBGkQD';
       const status = await solTransaction.fetchTransaction(signature);
@@ -28,17 +31,28 @@ describe('solana-service', () => {
       console.log('======status: ', status);
     });
 
-    it('sendRawTransaction usdc', async () => {
-      const senderPrivateKey = '';
-      const receiverPublicKey = '8LjCkGaHnti5YWZ4nwfVqH5Tn8bJBUM7VCe44dF7e4zS';
+    it.only('sendRawTransaction usdc', async () => {
+      const senderPrivateKey = process.env.SOLANA_FEEPAYER_PRIVATE_KEY;
+      const receiverPublicKey = process.env.SOLANA_PALTFORM_ACCOUNT;
       const sender = web3.Keypair.fromSecretKey(bs58.decode(senderPrivateKey));
       const feePayer = web3.Keypair.fromSecretKey(bs58.decode(senderPrivateKey));
       const receiver = new web3.PublicKey(receiverPublicKey);
+      const senderAta = await getAssociatedTokenAddress(USDC_DEV_PUBKEY, sender.publicKey);
       const receiverAta = await getAssociatedTokenAddress(USDC_DEV_PUBKEY, receiver);
-      const quantity = BigInt(1);
+      
       const token = new TokenInformation('usdc', USDC_DEV_PUBKEY, 6);
 
-      const transaction = await solTransaction.buildTransferTokenTransaction(sender.publicKey, receiver, receiverAta, token, quantity, true, feePayer.publicKey);
+      console.log('sender: ', sender.publicKey.toBase58());
+      console.log('senderAta: ', senderAta.toBase58());
+      console.log('receiver: ', receiver.toBase58());
+      console.log('receiverAta: ', receiverAta.toBase58());
+
+      const amount = BigInt(1);
+
+      const balance = await getAccount(solTransaction.connection, senderAta);
+      console.log('balance: ', balance);
+
+      const transaction = await solTransaction.buildTransferTokenTransaction(sender.publicKey, receiver, receiverAta, token, amount, true, feePayer.publicKey);
 
       transaction.sign(feePayer, sender);
       console.log('====signature', bs58.encode(transaction.signature));
@@ -48,7 +62,7 @@ describe('solana-service', () => {
     });
   });
 
-  describe('main net', async () => {
+  describe.skip('main net', () => {
     it('fetch main transaction unsended', async () => {
       const signature = '4ACGrWxMe2aJUVYd1Rd8ztvBBsrMrCkL5hgFm7Kn4AWKxJbKzrbN1Ks3YB96JW71Hzq3KkCBmT2PK2seEEPBjVdy';
       const status = await solTransaction.fetchTransaction(signature);

@@ -3,6 +3,7 @@ import { createTransferCheckedInstruction } from '@solana/spl-token';
 import { TokenInformation } from './token-list-info';
 import { createAssociatedTokenAccountInstruction, findAssociatedTokenAddress } from '../../utils';
 import { Injectable } from '@nestjs/common';
+import { CHAIN_RPC } from './constants';
 
 const NO_RPC_URL_ERROR_MESSAGE = 'Could not make a valid RPC connection.';
 
@@ -14,15 +15,13 @@ export enum OnChainTransactionStatus {
 
 @Injectable()
 export class SolTransaction {
-  public RPC_URL: string;
-  private connection: web3.Connection;
+  connection: web3.Connection;
 
-  constructor() {
-    const rpcUrl = process.env.SOLANA_RPC_URL;
-    if (rpcUrl == undefined) {
-      throw new Error(NO_RPC_URL_ERROR_MESSAGE);
+  constructor(rpcUrl?: string) {
+    if(!rpcUrl) {
+      rpcUrl = CHAIN_RPC.devnet;
     }
-    this.RPC_URL = rpcUrl;
+    console.log('rpcUrl: ', rpcUrl);
     this.connection = new web3.Connection(rpcUrl);
   }
 
