@@ -31,7 +31,7 @@ describe('solana-service', () => {
       console.log('======status: ', status);
     });
 
-    it.only('sendRawTransaction usdc', async () => {
+    it('sendRawTransaction usdc', async () => {
       const senderPrivateKey = process.env.SOLANA_FEEPAYER_PRIVATE_KEY;
       const receiverPublicKey = process.env.SOLANA_PALTFORM_ACCOUNT;
       const sender = web3.Keypair.fromSecretKey(bs58.decode(senderPrivateKey));
@@ -40,8 +40,8 @@ describe('solana-service', () => {
       const senderAta = await getAssociatedTokenAddress(USDC_DEV_PUBKEY, sender.publicKey);
       const receiverAta = await getAssociatedTokenAddress(USDC_DEV_PUBKEY, receiver);
       
-      const token = new TokenInformation('usdc', USDC_DEV_PUBKEY, 6);
-
+      const token = await TokenInformation.queryTokenInformationFromPubkey(USDC_DEV_PUBKEY, solTransaction.connection);
+      console.log('token: ', token);
       console.log('sender: ', sender.publicKey.toBase58());
       console.log('senderAta: ', senderAta.toBase58());
       console.log('receiver: ', receiver.toBase58());
@@ -49,8 +49,15 @@ describe('solana-service', () => {
 
       const amount = BigInt(1);
 
-      const balance = await getAccount(solTransaction.connection, senderAta);
-      console.log('balance: ', balance);
+      const senderTokenBalance = await getAccount(solTransaction.connection, senderAta);
+      console.log('senderTokenBalance: ', senderTokenBalance.amount);
+
+
+      const receiverTokenBalance = await getAccount(solTransaction.connection, receiverAta);
+      console.log('receiverTokenBalance: ', receiverTokenBalance.amount);
+
+      const solBalance = await solTransaction.connection.getBalance(sender.publicKey);
+      console.log('solBalance: ', solBalance);
 
       const transaction = await solTransaction.buildTransferTokenTransaction(sender.publicKey, receiver, receiverAta, token, amount, true, feePayer.publicKey);
 
@@ -59,6 +66,47 @@ describe('solana-service', () => {
 
       const res = await solTransaction.sendRawTransaction(transaction);
       console.log('=======res: ', res);
+    });
+
+    it('sendRawTransaction usdc use serialized transaction', async () => {
+      const senderPrivateKey = process.env.SOLANA_FEEPAYER_PRIVATE_KEY;
+      const receiverPublicKey = process.env.SOLANA_PALTFORM_ACCOUNT;
+      const sender = web3.Keypair.fromSecretKey(bs58.decode(senderPrivateKey));
+      const feePayer = web3.Keypair.fromSecretKey(bs58.decode(senderPrivateKey));
+      const receiver = new web3.PublicKey(receiverPublicKey);
+      const senderAta = await getAssociatedTokenAddress(USDC_DEV_PUBKEY, sender.publicKey);
+      const receiverAta = await getAssociatedTokenAddress(USDC_DEV_PUBKEY, receiver);
+      
+      const token = await TokenInformation.queryTokenInformationFromPubkey(USDC_DEV_PUBKEY, solTransaction.connection);
+
+      const amount = BigInt(1);
+
+      const senderTokenBalance = await getAccount(solTransaction.connection, senderAta);
+      console.log('senderTokenBalance: ', senderTokenBalance.amount);
+
+
+      const receiverTokenBalance = await getAccount(solTransaction.connection, receiverAta);
+      console.log('receiverTokenBalance: ', receiverTokenBalance.amount);
+
+      const solBalance = await solTransaction.connection.getBalance(sender.publicKey);
+      console.log('solBalance: ', solBalance);
+
+      const transaction = await solTransaction.buildTransferTokenTransaction(sender.publicKey, receiver, receiverAta, token, amount, true, feePayer.publicKey);
+
+      transaction.sign(feePayer, sender);
+      console.log('====signature', bs58.encode(transaction.signature));
+
+      const transactionSerialized = transaction.serialize({ requireAllSignatures: false, verifySignatures: false }).toString('base64');
+      console.log('transactionSerialized: ', transactionSerialized);
+
+      try {
+          const buffer = Buffer.from(transactionSerialized, 'base64');
+          const transaction = web3.Transaction.from(buffer);
+          const res = await solTransaction.sendRawTransaction(transaction);
+          console.log('=======res: ', res);
+      } catch (error) {
+        throw new Error('Failed to parse transaction string');
+      }
     });
   });
 
