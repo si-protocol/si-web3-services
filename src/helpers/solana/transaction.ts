@@ -60,6 +60,12 @@ export class SolTransaction {
       transferIxs.push(createAssociatedInstruction);
     }
 
+    console.log('senderTokenAddress:', senderTokenAddress.toBase58());
+    console.log('token.pubkey:', token.pubkey.toBase58());
+    console.log('finalReceiverTokenAddress:', finalReceiverTokenAddress.toBase58());
+    console.log('sender:', sender.toBase58());
+    console.log('quantity:', quantity);
+    console.log('token.decimals:', token.decimals);
     const transfer = createTransferCheckedInstruction(senderTokenAddress, token.pubkey, finalReceiverTokenAddress, sender, quantity, token.decimals);
 
     transferIxs.push(transfer);
