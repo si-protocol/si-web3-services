@@ -77,6 +77,9 @@ export class TransactionController {
     // Build the payment transaction
     const receiver = new PublicKey(this.sysConfigSrv.get('SOLANA_PALTFORM_ACCOUNT'));
     const sender = new PublicKey(param.account);
+    if(sender.toBase58() === receiver.toBase58()) {
+      throw new Error('Sender and receiver are the same');
+    }
     const feePayer = Keypair.fromSecretKey(bs58.decode(this.sysConfigSrv.get('SOLANA_FEEPAYER_PRIVATE_KEY')));
 
     let transaction: Transaction;
@@ -117,8 +120,11 @@ export class TransactionController {
       throw new Error('Invalid channel: ' + param.channel);
     }
     // Build the withdraw transaction
-    const receiver = new PublicKey(this.sysConfigSrv.get('SOLANA_PALTFORM_ACCOUNT'));
+    const receiver = new PublicKey(param.account);
     const sender = Keypair.fromSecretKey(bs58.decode(this.sysConfigSrv.get('SOLANA_WITHDRAW_PRIVATE_KEY')));
+    if(sender.publicKey.toBase58() === receiver.toBase58()) {
+      throw new Error('Sender and receiver are the same');
+    }
     const feePayer = Keypair.fromSecretKey(bs58.decode(this.sysConfigSrv.get('SOLANA_FEEPAYER_PRIVATE_KEY')));
 
     let transaction: Transaction;
