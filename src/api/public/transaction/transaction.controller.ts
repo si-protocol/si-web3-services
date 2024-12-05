@@ -83,9 +83,8 @@ export class TransactionController {
     const amount = BigInt(new BigNumber(param.amount).shiftedBy(param.tokenDecimals).toFixed());
     if (param.tokenAddress !== NATIVE_MINT.toBase58()) {
       const tokenPubkey = new PublicKey(param.tokenAddress);
-      const receiverAta = await getAssociatedTokenAddress(tokenPubkey, receiver);
       const token = new TokenInformation(param.tokenSymbol, tokenPubkey, param.tokenDecimals);
-      transaction = await this.solTransaction.buildTransferTokenTransaction(sender, receiver, receiverAta, token, amount, true, feePayer.publicKey);
+      transaction = await this.solTransaction.buildTransferTokenTransaction(sender, receiver, tokenPubkey, token, amount, true, feePayer.publicKey);
     } else {
       // Pay by SOL
       if(param.tokenDecimals !== 9    ) {

@@ -1,33 +1,14 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { createMock } from '@golevelup/ts-jest';
-import { sign, verify, md5 } from '../src/utils/crypto';
+import { sign, verify, md5, xorEncrypt, xorDecrypt } from '../src/utils/crypto';
 import { generateSN } from '../src/utils/hash';
-import dotenv from 'dotenv';
+// import dotenv from 'dotenv';
 
-dotenv.config();
+// dotenv.config();
 jest.setTimeout(30000);
 
 describe('Crypto', () => {
   let res: any;
-  let service: ConfigService;
   beforeEach(async () => {
     console.log('beforeEach');
-    const module: TestingModule = await Test.createTestingModule({
-      // eslint-disable-next-line prettier/prettier
-      imports: [
-        ConfigModule.forRoot()
-      ],
-      providers: [
-        ConfigService,
-        // {
-        //   provide: ConfigService,
-        //   useValue: createMock<ConfigService>({}),
-        // },
-      ],
-    }).compile();
-
-    service = module.get<ConfigService>(ConfigService);
   });
 
   afterEach(async () => {
@@ -50,5 +31,15 @@ describe('Crypto', () => {
   it('uuid', async () => {
     res = generateSN();
     console.log('sn:', res);
+  });
+  it('xorEncrypt', async () => {
+    const data = '123456Alsi8d9alkxlooiPPOucwc=w_as-';
+    console.log('data:', data);
+    const key = '123456';
+    res = xorEncrypt(data, key);
+    console.log('xorEncrypt:', res);
+    res = xorDecrypt(res, key);
+    console.log('xorDecrypt:', res);
+    expect(res).toBe(data);
   });
 });

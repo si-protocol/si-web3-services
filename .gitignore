@@ -35,6 +35,7 @@ lerna-debug.log*
 *.pem
 .env
 .env.bak
+.xor.key
 #pnpm-lock.yaml
 package-lock.json
 yarn.lock
