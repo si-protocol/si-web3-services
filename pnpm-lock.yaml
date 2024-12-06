@@ -254,6 +254,9 @@ dependencies:
   uuid:
     specifier: ^9.0.1
     version: 9.0.1
+  yargs:
+    specifier: ^17.7.2
+    version: 17.7.2
 
 devDependencies:
   '@faker-js/faker':

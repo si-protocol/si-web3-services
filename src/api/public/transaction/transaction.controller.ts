@@ -6,8 +6,8 @@ import { getAssociatedTokenAddress, NATIVE_MINT } from '@solana/spl-token';
 import { PayChannel, PayCurrency } from '@src/common';
 import * as bs58 from 'bs58';
 import { Logger } from 'nestjs-pino';
-import { SolTransaction, TokenInformation, OnChainTransactionStatus } from '@src/helpers/solana';
-import { ConfigService as SystemConfigService } from '@nestjs/config';
+import { SolTransaction, TokenInformation } from '@src/helpers/solana';
+import { ConfigService } from '@src/services';
 import BigNumber from 'bignumber.js';
 import type { Request } from 'express';
 ;
@@ -19,7 +19,7 @@ export class TransactionController {
   private solTransaction: SolTransaction;
   constructor(
     private readonly logger: Logger,
-    private readonly sysConfigSrv: SystemConfigService,
+    private readonly configSrv: ConfigService,
 
   ) {
     this.solTransaction = new SolTransaction();
@@ -75,12 +75,12 @@ export class TransactionController {
       throw new Error('Invalid channel: ' + param.channel);
     }
     // Build the payment transaction
-    const receiver = new PublicKey(this.sysConfigSrv.get('SOLANA_PALTFORM_ACCOUNT'));
+    const receiver = new PublicKey(this.configSrv.getSolanaPlatformAccount());
     const sender = new PublicKey(param.account);
     if(sender.toBase58() === receiver.toBase58()) {
       throw new Error('Sender and receiver are the same');
     }
-    const feePayer = Keypair.fromSecretKey(bs58.decode(this.sysConfigSrv.get('SOLANA_FEEPAYER_PRIVATE_KEY')));
+    const feePayer = Keypair.fromSecretKey(bs58.decode(this.configSrv.getSolanaFeePayerPrivateKey()));
 
     let transaction: Transaction;
     const amount = BigInt(new BigNumber(param.amount).shiftedBy(param.tokenDecimals).toFixed());
@@ -121,15 +121,15 @@ export class TransactionController {
     }
     // Build the withdraw transaction
     const receiver = new PublicKey(param.account);
-    const sender = Keypair.fromSecretKey(bs58.decode(this.sysConfigSrv.get('SOLANA_WITHDRAW_PRIVATE_KEY')));
+    const sender = Keypair.fromSecretKey(bs58.decode(this.configSrv.getSolanaWithdrawPrivateKey()));
     if(sender.publicKey.toBase58() === receiver.toBase58()) {
       throw new Error('Sender and receiver are the same');
     }
-    const feePayer = Keypair.fromSecretKey(bs58.decode(this.sysConfigSrv.get('SOLANA_FEEPAYER_PRIVATE_KEY')));
+    const feePayer = Keypair.fromSecretKey(bs58.decode(this.configSrv.getSolanaFeePayerPrivateKey()));
 
     let transaction: Transaction;
     let bAmount = new BigNumber(param.amount).shiftedBy(param.tokenDecimals);
-    const feeRate = this.sysConfigSrv.get('SOLANA_WITHDRAW_FEE_RATE');
+    const feeRate = this.configSrv.getSolanaWithdrawFeeRate();
     if (feeRate !== 0) {
       bAmount = bAmount.multipliedBy(new BigNumber(1).minus(feeRate));
     }

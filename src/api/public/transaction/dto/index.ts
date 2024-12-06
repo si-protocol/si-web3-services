@@ -24,7 +24,7 @@ export class SignPayTransactionDto {
   @IsString()
   tokenAddress: string;
 
-  @ApiProperty({ required: true, nullable: false, example: '', description: 'token decimals' })
+  @ApiProperty({ required: true, nullable: false, example: 9, description: 'token decimals' })
   @IsNumber()
   tokenDecimals: number;
 
