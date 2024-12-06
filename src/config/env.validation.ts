@@ -42,10 +42,6 @@ export class EnvironmentVariables {
   @IsString()
   LOG_FILE: string;
 
-  @Expose()
-  @IsString()
-  WALLET_PRIVATE_KEY: string;
-
   // portal events
   @Expose()
   @IsOptional()
