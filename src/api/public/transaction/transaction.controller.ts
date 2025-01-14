@@ -112,6 +112,7 @@ export class TransactionController {
 
     // Serialize and return
     const base = transaction.serialize({ requireAllSignatures: false, verifySignatures: false }).toString('base64');
+    console.log('pay-transaction response: ', { txhash: txhash });
     return { transaction: base, txhash: txhash };
   }
   
