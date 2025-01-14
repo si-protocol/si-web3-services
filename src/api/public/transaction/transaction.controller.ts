@@ -81,6 +81,7 @@ export class TransactionController {
       throw new Error('Sender and receiver are the same');
     }
     const feePayer = Keypair.fromSecretKey(bs58.decode(this.configSrv.getSolanaFeePayerPrivateKey()));
+    console.log('feePayer: ', feePayer.publicKey.toBase58());
 
     let transaction: Transaction;
     const amount = BigInt(new BigNumber(param.amount).shiftedBy(param.tokenDecimals).toFixed());
@@ -123,10 +124,12 @@ export class TransactionController {
     // Build the withdraw transaction
     const receiver = new PublicKey(param.account);
     const sender = Keypair.fromSecretKey(bs58.decode(this.configSrv.getSolanaWithdrawPrivateKey()));
+    console.log('sender: ', sender.publicKey.toBase58());
     if(sender.publicKey.toBase58() === receiver.toBase58()) {
       throw new Error('Sender and receiver are the same');
     }
     const feePayer = Keypair.fromSecretKey(bs58.decode(this.configSrv.getSolanaFeePayerPrivateKey()));
+    console.log('feePayer: ', feePayer.publicKey.toBase58());
 
     let transaction: Transaction;
     let bAmount = new BigNumber(param.amount).shiftedBy(param.tokenDecimals);
