@@ -13,8 +13,8 @@ describe('solana-service', () => {
   const solTransaction: SolTransaction = new SolTransaction();
 
   describe('dev net', () => {
-    it('fetch dev transaction sended and success', async () => {
-      const signature = '4NWUF65zTqLtmrcpvr2DScXbtzz9CRn9RD5WdGYYfbEU9yurmLNsVdKf8LJwf3C7z7WRdJGLEif5fB6QsSMBGkQD';
+    it.only('fetch dev transaction sended and success', async () => {
+      const signature = '3wu5tZXEABJVNnw9pcaKjVspC6naJDuqtr6PMm8x4vQDRWLMVAQuqnT62ZNHbyDuCLDMaredmAhJZfEMGCHudwFj';
       const status = await solTransaction.fetchTransaction(signature);
       console.log('======status: ', status);
     });
@@ -39,7 +39,7 @@ describe('solana-service', () => {
       const receiver = new web3.PublicKey(receiverPublicKey);
       const senderAta = await getAssociatedTokenAddress(USDC_DEV_PUBKEY, sender.publicKey);
       const receiverAta = await getAssociatedTokenAddress(USDC_DEV_PUBKEY, receiver);
-      
+
       const token = await TokenInformation.queryTokenInformationFromPubkey(USDC_DEV_PUBKEY, solTransaction.connection);
       console.log('token: ', token);
       console.log('sender: ', sender.publicKey.toBase58());
@@ -51,7 +51,6 @@ describe('solana-service', () => {
 
       const senderTokenBalance = await getAccount(solTransaction.connection, senderAta);
       console.log('senderTokenBalance: ', senderTokenBalance.amount);
-
 
       const receiverTokenBalance = await getAccount(solTransaction.connection, receiverAta);
       console.log('receiverTokenBalance: ', receiverTokenBalance.amount);
@@ -76,14 +75,13 @@ describe('solana-service', () => {
       const receiver = new web3.PublicKey(receiverPublicKey);
       const senderAta = await getAssociatedTokenAddress(USDC_DEV_PUBKEY, sender.publicKey);
       const receiverAta = await getAssociatedTokenAddress(USDC_DEV_PUBKEY, receiver);
-      
+
       const token = await TokenInformation.queryTokenInformationFromPubkey(USDC_DEV_PUBKEY, solTransaction.connection);
 
       const amount = BigInt(1);
 
       const senderTokenBalance = await getAccount(solTransaction.connection, senderAta);
       console.log('senderTokenBalance: ', senderTokenBalance.amount);
-
 
       const receiverTokenBalance = await getAccount(solTransaction.connection, receiverAta);
       console.log('receiverTokenBalance: ', receiverTokenBalance.amount);
@@ -100,10 +98,10 @@ describe('solana-service', () => {
       console.log('transactionSerialized: ', transactionSerialized);
 
       try {
-          const buffer = Buffer.from(transactionSerialized, 'base64');
-          const transaction = web3.Transaction.from(buffer);
-          const res = await solTransaction.sendRawTransaction(transaction);
-          console.log('=======res: ', res);
+        const buffer = Buffer.from(transactionSerialized, 'base64');
+        const transaction = web3.Transaction.from(buffer);
+        const res = await solTransaction.sendRawTransaction(transaction);
+        console.log('=======res: ', res);
       } catch (error) {
         throw new Error('Failed to parse transaction string');
       }

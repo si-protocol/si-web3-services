@@ -1,6 +1,6 @@
 import { Controller, UseGuards, Param, Req, Get, Post, Body, HttpCode, Query, BadRequestException, BadGatewayException } from '@nestjs/common';
 import { ApiTags, ApiBody, ApiOperation, ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
-import { SignPayTransactionDto, SignTransactionRes} from './dto';
+import { SignPayTransactionDto, SignTransactionRes } from './dto';
 import { Transaction, PublicKey, Keypair } from '@solana/web3.js';
 import { getAssociatedTokenAddress, NATIVE_MINT } from '@solana/spl-token';
 import { PayChannel, PayCurrency } from '@src/common';
@@ -10,9 +10,6 @@ import { SolTransaction, TokenInformation } from '@src/helpers/solana';
 import { ConfigService } from '@src/services';
 import BigNumber from 'bignumber.js';
 import type { Request } from 'express';
-;
-
-
 @ApiTags('transaction')
 @Controller('/transaction')
 export class TransactionController {
@@ -20,11 +17,9 @@ export class TransactionController {
   constructor(
     private readonly logger: Logger,
     private readonly configSrv: ConfigService,
-
   ) {
     this.solTransaction = new SolTransaction();
   }
-
 
   @ApiOperation({ operationId: 'sign-pay-transaction', summary: 'Generate payment unsinged transaction' })
   @ApiOkResponse({ type: SignTransactionRes })
@@ -47,7 +42,7 @@ export class TransactionController {
       return new BadRequestException(error.message);
     }
   }
-  
+
   @ApiOperation({ operationId: 'sign-withdraw-transaction', summary: 'Generate withdraw unsinged transaction' })
   @ApiOkResponse({ type: SignTransactionRes })
   @HttpCode(200)
@@ -77,7 +72,7 @@ export class TransactionController {
     // Build the payment transaction
     const receiver = new PublicKey(this.configSrv.getSolanaPlatformAccount());
     const sender = new PublicKey(param.account);
-    if(sender.toBase58() === receiver.toBase58()) {
+    if (sender.toBase58() === receiver.toBase58()) {
       throw new Error('Sender and receiver are the same');
     }
     const feePayer = Keypair.fromSecretKey(bs58.decode(this.configSrv.getSolanaFeePayerPrivateKey()));
@@ -92,7 +87,7 @@ export class TransactionController {
       transaction = await this.solTransaction.buildTransferTokenTransaction(sender, receiver, receiverAta, token, amount, true, feePayer.publicKey);
     } else {
       // Pay by SOL
-      if(param.tokenDecimals !== 9    ) {
+      if (Number(param.tokenDecimals) !== 9) {
         throw new Error('Invalid token decimals: ' + param.tokenDecimals);
       }
       transaction = await this.solTransaction.buildTransferSolTransaction(sender, receiver, amount, feePayer.publicKey);
@@ -116,7 +111,7 @@ export class TransactionController {
     console.log('pay-transaction response: ', { txhash: txhash });
     return { transaction: base, txhash: txhash };
   }
-  
+
   async withdrawBySolana(param: SignPayTransactionDto) {
     if (param.channel !== PayChannel.SOL) {
       throw new Error('Invalid channel: ' + param.channel);
@@ -125,7 +120,7 @@ export class TransactionController {
     const receiver = new PublicKey(param.account);
     const sender = Keypair.fromSecretKey(bs58.decode(this.configSrv.getSolanaWithdrawPrivateKey()));
     console.log('sender: ', sender.publicKey.toBase58());
-    if(sender.publicKey.toBase58() === receiver.toBase58()) {
+    if (sender.publicKey.toBase58() === receiver.toBase58()) {
       throw new Error('Sender and receiver are the same');
     }
     const feePayer = Keypair.fromSecretKey(bs58.decode(this.configSrv.getSolanaFeePayerPrivateKey()));
@@ -145,7 +140,7 @@ export class TransactionController {
       transaction = await this.solTransaction.buildTransferTokenTransaction(sender.publicKey, receiver, receiverAta, token, amount, true, feePayer.publicKey);
     } else {
       // Pay by SOL
-      if(param.tokenDecimals !== 9    ) {
+      if (param.tokenDecimals !== 9) {
         throw new Error('Invalid token decimals: ' + param.tokenDecimals);
       }
       transaction = await this.solTransaction.buildTransferSolTransaction(sender.publicKey, receiver, amount, feePayer.publicKey);
@@ -168,5 +163,4 @@ export class TransactionController {
     const base = transaction.serialize({ requireAllSignatures: false, verifySignatures: false }).toString('base64');
     return { transaction: base, txhash: txhash };
   }
-  
 }

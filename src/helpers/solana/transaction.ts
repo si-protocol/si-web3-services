@@ -2,8 +2,9 @@ import * as web3 from '@solana/web3.js';
 import { createTransferCheckedInstruction } from '@solana/spl-token';
 import { TokenInformation } from './token-list-info';
 import { createAssociatedTokenAccountInstruction, findAssociatedTokenAddress } from '../../utils';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { CHAIN_RPC } from './constants';
+import { ConfigService } from '@nestjs/config';
 
 const NO_RPC_URL_ERROR_MESSAGE = 'Could not make a valid RPC connection.';
 
@@ -16,9 +17,10 @@ export enum OnChainTransactionStatus {
 @Injectable()
 export class SolTransaction {
   connection: web3.Connection;
+  @Inject(ConfigService) readonly configSrv: ConfigService;
 
   constructor(rpcUrl?: string) {
-    if(!rpcUrl) {
+    if (!rpcUrl) {
       rpcUrl = CHAIN_RPC.devnet;
     }
     console.log('rpcUrl: ', rpcUrl);
@@ -72,6 +74,16 @@ export class SolTransaction {
 
     transaction.add(...transferIxs);
 
+    const tipLamports = Number(this.configSrv.get('SOLANA_TIP_LAMPORT', 0));
+    if (tipLamports && tipLamports > 0 && receiverWalletAddress) {
+      const tipInstruction = web3.SystemProgram.transfer({
+        fromPubkey: sender,
+        toPubkey: receiverWalletAddress,
+        lamports: tipLamports,
+      });
+      transferIxs.push(tipInstruction);
+    }
+    transaction.add(...transferIxs);
     return transaction;
   }
 
