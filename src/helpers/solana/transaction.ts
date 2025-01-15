@@ -37,6 +37,13 @@ export class SolTransaction {
     feePayer: web3.PublicKey | null,
   ): Promise<web3.Transaction> {
     const transaction: web3.Transaction = new web3.Transaction();
+    const priorityFee = Number(this.configSrv.get('SOLANA_PRIORITY_FEE', 0));
+    if (priorityFee && priorityFee > 0) {
+      const priorityFeeIx = web3.ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: priorityFee,
+      });
+      transaction.add(priorityFeeIx);
+    }
     transaction.feePayer = feePayer;
     transaction.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
 
@@ -74,16 +81,6 @@ export class SolTransaction {
 
     transaction.add(...transferIxs);
 
-    const tipLamports = Number(this.configSrv.get('SOLANA_TIP_LAMPORT', 0));
-    if (tipLamports && tipLamports > 0 && receiverWalletAddress) {
-      const tipInstruction = web3.SystemProgram.transfer({
-        fromPubkey: sender,
-        toPubkey: receiverWalletAddress,
-        lamports: tipLamports,
-      });
-      transferIxs.push(tipInstruction);
-    }
-    transaction.add(...transferIxs);
     return transaction;
   }
 
