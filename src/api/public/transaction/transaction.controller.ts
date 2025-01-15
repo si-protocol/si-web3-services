@@ -9,17 +9,15 @@ import { Logger } from 'nestjs-pino';
 import { SolTransaction, TokenInformation } from '@src/helpers/solana';
 import { ConfigService } from '@src/services';
 import BigNumber from 'bignumber.js';
-import type { Request } from 'express';
+
 @ApiTags('transaction')
 @Controller('/transaction')
 export class TransactionController {
-  private solTransaction: SolTransaction;
   constructor(
     private readonly logger: Logger,
     private readonly configSrv: ConfigService,
-  ) {
-    this.solTransaction = new SolTransaction();
-  }
+    private readonly solTransaction: SolTransaction,
+  ) {}
 
   @ApiOperation({ operationId: 'sign-pay-transaction', summary: 'Generate payment unsinged transaction' })
   @ApiOkResponse({ type: SignTransactionRes })

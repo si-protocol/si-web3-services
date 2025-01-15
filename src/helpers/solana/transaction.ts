@@ -2,7 +2,7 @@ import * as web3 from '@solana/web3.js';
 import { createTransferCheckedInstruction } from '@solana/spl-token';
 import { TokenInformation } from './token-list-info';
 import { createAssociatedTokenAccountInstruction, findAssociatedTokenAddress } from '../../utils';
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { CHAIN_RPC } from './constants';
 import { ConfigService } from '@nestjs/config';
 
@@ -15,16 +15,12 @@ export enum OnChainTransactionStatus {
 }
 
 @Injectable()
-export class SolTransaction {
+export class SolTransaction implements OnModuleInit {
   connection: web3.Connection;
   @Inject(ConfigService) readonly configSrv: ConfigService;
 
-  constructor(rpcUrl?: string) {
-    if (!rpcUrl) {
-      rpcUrl = CHAIN_RPC.devnet;
-    }
-    console.log('rpcUrl: ', rpcUrl);
-    this.connection = new web3.Connection(rpcUrl);
+  async onModuleInit() {
+    this.connection = new web3.Connection(this.configSrv.get('SOLANA_RPC_URL', CHAIN_RPC.devnet));
   }
 
   async buildTransferTokenTransaction(
