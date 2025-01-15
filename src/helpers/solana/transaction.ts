@@ -39,7 +39,7 @@ export class SolTransaction implements OnModuleInit {
         microLamports: priorityFee,
       });
       const limitIx = web3.ComputeBudgetProgram.setComputeUnitLimit({
-        units: 1000000,
+        units: 300000,
       });
       transaction.add(priorityFeeIx, limitIx);
     }
@@ -96,7 +96,7 @@ export class SolTransaction implements OnModuleInit {
         microLamports: priorityFee,
       });
       const limitIx = web3.ComputeBudgetProgram.setComputeUnitLimit({
-        units: 1000000,
+        units: 200000,
       });
       transaction.add(priorityFeeIx, limitIx);
     }
