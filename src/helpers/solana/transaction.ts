@@ -91,6 +91,13 @@ export class SolTransaction {
     feePayer: web3.PublicKey | null,
   ): Promise<web3.Transaction> {
     const transaction: web3.Transaction = new web3.Transaction();
+    const priorityFee = Number(this.configSrv.get('SOLANA_PRIORITY_FEE', 0));
+    if (priorityFee && priorityFee > 0) {
+      const priorityFeeIx = web3.ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: priorityFee,
+      });
+      transaction.add(priorityFeeIx);
+    }
     transaction.feePayer = feePayer;
     transaction.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
 
