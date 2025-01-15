@@ -42,7 +42,10 @@ export class SolTransaction {
       const priorityFeeIx = web3.ComputeBudgetProgram.setComputeUnitPrice({
         microLamports: priorityFee,
       });
-      transaction.add(priorityFeeIx);
+      const limitIx = web3.ComputeBudgetProgram.setComputeUnitLimit({
+        units: 1000000,
+      });
+      transaction.add(priorityFeeIx, limitIx);
     }
     transaction.feePayer = feePayer;
     transaction.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
@@ -96,7 +99,10 @@ export class SolTransaction {
       const priorityFeeIx = web3.ComputeBudgetProgram.setComputeUnitPrice({
         microLamports: priorityFee,
       });
-      transaction.add(priorityFeeIx);
+      const limitIx = web3.ComputeBudgetProgram.setComputeUnitLimit({
+        units: 1000000,
+      });
+      transaction.add(priorityFeeIx, limitIx);
     }
     transaction.feePayer = feePayer;
     transaction.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
